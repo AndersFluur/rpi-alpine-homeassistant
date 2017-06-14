@@ -6,6 +6,8 @@ DOCKER_USER="andersf"
 #MAINTAINER="Felix Oertel <https://github.com/foertel>"
 MAINTAINER="Anders Fluur <https://github.com/AndersFluur>"
 
+LOGDIR=/var/log
+
 ARCH=$(uname -m)
 if [ "$ARCH" == "armv7l" ]; then
     ALPINE_IMAGE="armhf/alpine"
@@ -19,7 +21,7 @@ fi
 
 log() {
    now=$(date +"%Y%m%d-%H%M%S")
-   echo "$now - $*" >> /var/log/docker/hass-build.log
+   echo "$now - $*" >> $LOGDIR/hass-build.log
 }
 
 log ">>--------------------->>"
