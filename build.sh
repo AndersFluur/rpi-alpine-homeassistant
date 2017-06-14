@@ -3,16 +3,20 @@
 
 HA_LATEST=false
 DOCKER_USER="andersf"
+DOCKER_IMAGE_BASE=alpine-homeassistant
 #MAINTAINER="Felix Oertel <https://github.com/foertel>"
 MAINTAINER="Anders Fluur <https://github.com/AndersFluur>"
 
-LOGDIR=/var/log
+LOGDIR=./log
+mkdir -p $LOGDIR
 
 ARCH=$(uname -m)
 if [ "$ARCH" == "armv7l" ]; then
     ALPINE_IMAGE="armhf/alpine"
+    DOCKER_IMAGE="$DOCKER_IMAGE_BASE-armhf"
 elif [ "$ARCH" == "aarch64" ]; then
     ALPINE_IMAGE="arm64v8/alpine"
+    DOCKER_IMAGE="$DOCKER_IMAGE_BASE-arm64v8"
 else
     log "Know conversion from current architecture: $ARCH into alpine image. Known architectures: armv7l, and aarch64 !"
     exit 1
@@ -70,18 +74,18 @@ _EOF_
 ## #####################################################################
 ## Build the Docker image, tag and push to https://hub.docker.com/
 ## #####################################################################
-log "Building $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION"
-docker build -t $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION .
+log "Building $DOCKER_USER/$DOCKER_IMAGE:$HA_VERSION"
+docker build -t $DOCKER_USER/$DOCKER_IMAGE:$HA_VERSION .
 
-log "Pushing $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION"
-docker push $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION
+log "Pushing $DOCKER_USER/$DOCKER_IMAGE:$HA_VERSION"
+docker push $DOCKER_USER/$DOCKER_IMAGE:$HA_VERSION
 
 if [ "$HA_LATEST" = true ]; then
-   log "Tagging $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION with latest"
-   docker tag $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION $DOCKER_USER/rpi-alpine-homeassistant:latest
-   log "Pushing $DOCKER_USER/rpi-alpine-homeassistant:latest"
-   docker push $DOCKER_USER/rpi-alpine-homeassistant:latest
-   echo $HA_VERSION > /var/log/docker/hass-build.version
+   log "Tagging $DOCKER_USER/$DOCKER_IMAGE:$HA_VERSION with latest"
+   docker tag $DOCKER_USER/$DOCKER_IMAGE:$HA_VERSION $DOCKER_USER/$DOCKER_IMAGE:latest
+   log "Pushing $DOCKER_USER/$DOCKER_IMAGE:latest"
+   docker push $DOCKER_USER/$DOCKER_IMAGE:latest
+   echo $HA_VERSION > $LOGDIR/hass-build.version
 fi
 
 log ">>--------------------->>"
