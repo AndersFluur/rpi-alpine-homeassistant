@@ -2,6 +2,20 @@
 # thanks to lroguet from https://github.com/foertel/rpi-alpine-homeassistant
 
 HA_LATEST=false
+DOCKER_USER="andersf"
+#MAINTAINER="Felix Oertel <https://github.com/foertel>"
+MAINTAINER="Anders Fluur <https://github.com/AndersFluur>"
+
+ARCH=$(uname -m)
+if [ "$ARCH" == "armv7l" ]; then
+    ALPINE_IMAGE="armhf/alpine"
+elif [ "$ARCH" == "aarch64" ]; then
+    ALPINE_IMAGE="arm64v8/alpine"
+else
+    log "Know conversion from current architecture: $ARCH into alpine image. Known architectures: armv7l, and aarch64 !"
+    exit 1
+fi
+
 
 log() {
    now=$(date +"%Y%m%d-%H%M%S")
@@ -38,8 +52,8 @@ fi
 ## Generate the Dockerfile
 ## #####################################################################
 cat << _EOF_ > Dockerfile
-FROM armhf/alpine
-MAINTAINER Felix Oertel <https://github.com/foertel>
+FROM $ALPINE_IMAGE
+MAINTAINER $MAINTAINER
 
 RUN apk --no-cache upgrade \\
   && apk --no-cache add python3-dev py-pip \\
@@ -54,17 +68,17 @@ _EOF_
 ## #####################################################################
 ## Build the Docker image, tag and push to https://hub.docker.com/
 ## #####################################################################
-log "Building foertel/rpi-alpine-homeassistant:$HA_VERSION"
-docker build -t foertel/rpi-alpine-homeassistant:$HA_VERSION .
+log "Building $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION"
+docker build -t $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION .
 
-log "Pushing foertel/rpi-alpine-homeassistant:$HA_VERSION"
-docker push foertel/rpi-alpine-homeassistant:$HA_VERSION
+log "Pushing $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION"
+docker push $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION
 
 if [ "$HA_LATEST" = true ]; then
-   log "Tagging foertel/rpi-alpine-homeassistant:$HA_VERSION with latest"
-   docker tag foertel/rpi-alpine-homeassistant:$HA_VERSION foertel/rpi-alpine-homeassistant:latest
-   log "Pushing foertel/rpi-alpine-homeassistant:latest"
-   docker push foertel/rpi-alpine-homeassistant:latest
+   log "Tagging $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION with latest"
+   docker tag $DOCKER_USER/rpi-alpine-homeassistant:$HA_VERSION $DOCKER_USER/rpi-alpine-homeassistant:latest
+   log "Pushing $DOCKER_USER/rpi-alpine-homeassistant:latest"
+   docker push $DOCKER_USER/rpi-alpine-homeassistant:latest
    echo $HA_VERSION > /var/log/docker/hass-build.version
 fi
 
