@@ -3,7 +3,7 @@
 
 HA_LATEST=false
 DOCKER_USER="andersf"
-DOCKER_IMAGE_BASE=alpine-homeassistant
+DOCKER_IMAGE_BASE=homeassistant-alpine
 #MAINTAINER="Felix Oertel <https://github.com/foertel>"
 MAINTAINER="Anders Fluur <https://github.com/AndersFluur>"
 
