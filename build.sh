@@ -61,11 +61,26 @@ cat << _EOF_ > Dockerfile
 FROM $ALPINE_IMAGE
 MAINTAINER $MAINTAINER
 
+RUN    apk add --no-cache \
+        libstdc++ \
+    && apk add --no-cache --virtual .build-deps \
+        binutils-gold \
+        g++ \
+        gcc \
+        gnupg \
+        libgcc \
+        linux-headers \
+        make 
+
+
 RUN apk --no-cache upgrade \\
-  && apk --no-cache add python3-dev py-pip \\
+  && apk --no-cache add python3-dev py-pip \
+     py3-netifaces \\
   && pip3 install --upgrade pip \\
   && mkdir /config \\
   && pip3 install homeassistant==$HA_VERSION
+
+#RUN apk del .build-deps
 
 # Start Home Assistant
 CMD [ "python3", "-m", "homeassistant", "--config", "/config" ]
